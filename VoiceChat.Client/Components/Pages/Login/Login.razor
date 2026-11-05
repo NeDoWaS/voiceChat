@@ -1,0 +1,171 @@
+@page "/login"
+@using System.ComponentModel.DataAnnotations
+@using Microsoft.AspNetCore.Components
+@using VoiceChat.Client.Services
+@rendermode InteractiveServer
+<PageTitle>Login</PageTitle>
+
+<div class="auth-container">
+    <div class="auth-card">
+        <h1>Welcome back</h1>
+        <p class="subtitle">Login to VoiceChat</p>
+
+        <EditForm Model="@LoginModel" OnValidSubmit="@LoginUser" FormName="loginForm">
+            <DataAnnotationsValidator />
+            <div class="form-group">
+                <label>Email</label>
+                <InputText @bind-Value="LoginModel.Email" type="email" />
+                <ValidationMessage For="() => LoginModel.Email" />
+            </div>
+
+            <div class="form-group">
+                <label>Password</label>
+                <InputText @bind-Value="LoginModel.Password" type="password" />
+                <ValidationMessage For="() => LoginModel.Password" />
+            </div>
+
+            @if (!string.IsNullOrEmpty(ErrorMessage))
+            {
+                <p class="error">@ErrorMessage</p>
+            }
+
+            <button type="submit" disabled="@IsLoading">
+                @(IsLoading ? "Logging in..." : "Login")
+            </button>
+        </EditForm>
+
+        <p class="switch-page">
+            Don't have an account?
+            <a href="/register">Register</a>
+        </p>
+    </div>
+</div>
+
+@code {
+    [Inject]
+    private ApiService Api { get; set; } = null!;
+
+    [Inject]
+    private SessionService Session { get; set; } = null!;
+
+    [Inject]
+    private NavigationManager Navigation { get; set; } = null!;
+
+    private LoginRequest LoginModel { get; set; } = new();
+
+    private string? ErrorMessage { get; set; }
+
+    private bool IsLoading { get; set; }
+
+    private async Task LoginUser()
+    {
+        ErrorMessage = null;
+        IsLoading = true;
+
+        try
+        {
+            var response = await Api.LoginUserAsync(LoginModel.Email, LoginModel.Password);
+
+            if (response is null)
+            {
+                ErrorMessage = "Invalid email or password.";
+                return;
+            }
+            Session.SetSession(
+                response.Token ?? "",
+                response.UserId ?? 0,
+                response.UserName ?? ""
+            );
+
+            Navigation.NavigateTo("/homePage");
+        }
+        catch
+        {
+            ErrorMessage = "Something went wrong.";
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+    public class LoginRequest
+    {
+        [Required]
+        [EmailAddress]
+        public string Email { get; set; } = "";
+
+        [Required]
+        public string Password { get; set; } = "";
+    }
+}
+
+<style>
+    .auth-container {
+        min-height: 80vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .auth-card {
+        width: 400px;
+        padding: 32px;
+        border-radius: 12px;
+        background: #ffffff;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .auth-card h1 {
+        margin-bottom: 5px;
+        text-align: center;
+    }
+
+    .subtitle {
+        text-align: center;
+        color: #777;
+        margin-bottom: 25px;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 18px;
+    }
+
+    .form-group label {
+        margin-bottom: 6px;
+        font-weight: 500;
+    }
+
+    .form-group input {
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        font-size: 16px;
+    }
+
+    button {
+        width: 100%;
+        padding: 11px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 16px;
+    }
+
+    button:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+    .error {
+        color: #d32f2f;
+        margin-bottom: 15px;
+    }
+
+    .switch-page {
+        text-align: center;
+        margin-top: 20px;
+    }
+</style>

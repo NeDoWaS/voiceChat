@@ -1,0 +1,75 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v10.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v10.0": {
+      "VoiceChat.Client/1.0.0": {
+        "dependencies": {
+          "Microsoft.AspNetCore.SignalR.Client": "10.0.13"
+        },
+        "runtime": {
+          "VoiceChat.Client.dll": {}
+        }
+      },
+      "Microsoft.AspNetCore.Http.Connections.Client/10.0.13": {
+        "runtime": {
+          "lib/net10.0/Microsoft.AspNetCore.Http.Connections.Client.dll": {
+            "assemblyVersion": "10.0.13.0",
+            "fileVersion": "10.0.1326.50504"
+          }
+        }
+      },
+      "Microsoft.AspNetCore.SignalR.Client/10.0.13": {
+        "dependencies": {
+          "Microsoft.AspNetCore.Http.Connections.Client": "10.0.13",
+          "Microsoft.AspNetCore.SignalR.Client.Core": "10.0.13"
+        },
+        "runtime": {
+          "lib/net10.0/Microsoft.AspNetCore.SignalR.Client.dll": {
+            "assemblyVersion": "10.0.13.0",
+            "fileVersion": "10.0.1326.50504"
+          }
+        }
+      },
+      "Microsoft.AspNetCore.SignalR.Client.Core/10.0.13": {
+        "runtime": {
+          "lib/net10.0/Microsoft.AspNetCore.SignalR.Client.Core.dll": {
+            "assemblyVersion": "10.0.13.0",
+            "fileVersion": "10.0.1326.50504"
+          }
+        }
+      }
+    }
+  },
+  "libraries": {
+    "VoiceChat.Client/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Microsoft.AspNetCore.Http.Connections.Client/10.0.13": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-r9hlU+te+QWFJlUCt2C22TDKY3oMER8ayC7Qzeq6yJ5toHBKcSqshhyyaLKK1jgBuyNi4ejly0wE8ANV8TyfWQ==",
+      "path": "microsoft.aspnetcore.http.connections.client/10.0.13",
+      "hashPath": "microsoft.aspnetcore.http.connections.client.10.0.13.nupkg.sha512"
+    },
+    "Microsoft.AspNetCore.SignalR.Client/10.0.13": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-17fMUI5gkRwR9qXXTELd5OChcFn3lkgWpiblaaELQ45zOL7VuU7HJYAYnMk+Irjf2jpRxHT7b0imy+NVIFyoYQ==",
+      "path": "microsoft.aspnetcore.signalr.client/10.0.13",
+      "hashPath": "microsoft.aspnetcore.signalr.client.10.0.13.nupkg.sha512"
+    },
+    "Microsoft.AspNetCore.SignalR.Client.Core/10.0.13": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-zfCQ0/J/rATKKcpwcpQYFz8sxhvrzgGyblsATcfxqSCibRkPFmDZcFmfD0UfLi38q+VDMpwEVuzOCO3TpRy99Q==",
+      "path": "microsoft.aspnetcore.signalr.client.core/10.0.13",
+      "hashPath": "microsoft.aspnetcore.signalr.client.core.10.0.13.nupkg.sha512"
+    }
+  }
+}

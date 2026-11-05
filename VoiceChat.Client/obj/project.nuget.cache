@@ -1,0 +1,27 @@
+{
+  "version": 2,
+  "dgSpecHash": "089Zdl3LBjs=",
+  "success": true,
+  "projectFilePath": "/home/nedowas/stuff/test/cisharp/voiceChat/VoiceChat.Client/VoiceChat.Client.csproj",
+  "expectedPackageFiles": [
+    "/home/nedowas/.nuget/packages/microsoft.aspnetcore.app.internal.assets/10.0.13/microsoft.aspnetcore.app.internal.assets.10.0.13.nupkg.sha512",
+    "/home/nedowas/.nuget/packages/microsoft.aspnetcore.http.connections.client/10.0.13/microsoft.aspnetcore.http.connections.client.10.0.13.nupkg.sha512",
+    "/home/nedowas/.nuget/packages/microsoft.aspnetcore.identity/2.3.13/microsoft.aspnetcore.identity.2.3.13.nupkg.sha512",
+    "/home/nedowas/.nuget/packages/microsoft.aspnetcore.signalr.client/10.0.13/microsoft.aspnetcore.signalr.client.10.0.13.nupkg.sha512",
+    "/home/nedowas/.nuget/packages/microsoft.aspnetcore.signalr.client.core/10.0.13/microsoft.aspnetcore.signalr.client.core.10.0.13.nupkg.sha512"
+  ],
+  "logs": [
+    {
+      "code": "NU1510",
+      "level": "Warning",
+      "message": "PackageReference Microsoft.AspNetCore.Identity will not be pruned. Consider removing this package from your dependencies, as it is likely unnecessary.",
+      "projectPath": "/home/nedowas/stuff/test/cisharp/voiceChat/VoiceChat.Client/VoiceChat.Client.csproj",
+      "warningLevel": 1,
+      "filePath": "/home/nedowas/stuff/test/cisharp/voiceChat/VoiceChat.Client/VoiceChat.Client.csproj",
+      "libraryId": "Microsoft.AspNetCore.Identity",
+      "targetGraphs": [
+        "net10.0"
+      ]
+    }
+  ]
+}

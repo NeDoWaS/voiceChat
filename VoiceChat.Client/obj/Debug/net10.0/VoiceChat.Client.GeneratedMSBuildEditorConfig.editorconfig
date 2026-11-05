@@ -1,0 +1,87 @@
+is_global = true
+build_property.TargetFramework = net10.0
+build_property.TargetFrameworkIdentifier = .NETCoreApp
+build_property.TargetFrameworkVersion = v10.0
+build_property.TargetPlatformMinVersion = 
+build_property.UsingMicrosoftNETSdkWeb = true
+build_property.ProjectTypeGuids = 
+build_property.InvariantGlobalization = 
+build_property.PlatformNeutralAssembly = 
+build_property.EnforceExtendedAnalyzerRules = 
+build_property._SupportedPlatformList = Linux,macOS,Windows
+build_property.RootNamespace = VoiceChat.Client
+build_property.RootNamespace = VoiceChat.Client
+build_property.ProjectDir = /home/nedowas/stuff/test/cisharp/voiceChat/VoiceChat.Client/
+build_property.EnableComHosting = 
+build_property.EnableGeneratedComInterfaceComImportInterop = 
+build_property.RazorLangVersion = 9.0
+build_property.SupportLocalizedComponentNames = 
+build_property.GenerateRazorMetadataSourceChecksumAttributes = 
+build_property.MSBuildProjectDirectory = /home/nedowas/stuff/test/cisharp/voiceChat/VoiceChat.Client
+build_property._RazorSourceGeneratorDebug = 
+build_property.EffectiveAnalysisLevelStyle = 10.0
+build_property.EnableCodeStyleSeverity = 
+
+[/home/nedowas/stuff/test/cisharp/voiceChat/VoiceChat.Client/Components/App.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9BcHAucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/nedowas/stuff/test/cisharp/voiceChat/VoiceChat.Client/Components/Elements/UserItem.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9FbGVtZW50cy9Vc2VySXRlbS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/nedowas/stuff/test/cisharp/voiceChat/VoiceChat.Client/Components/Elements/UserList.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9FbGVtZW50cy9Vc2VyTGlzdC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/nedowas/stuff/test/cisharp/voiceChat/VoiceChat.Client/Components/Elements/VoiceControls.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9FbGVtZW50cy9Wb2ljZUNvbnRyb2xzLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/nedowas/stuff/test/cisharp/voiceChat/VoiceChat.Client/Components/Pages/AuthorizeComponent.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9BdXRob3JpemVDb21wb25lbnQucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/nedowas/stuff/test/cisharp/voiceChat/VoiceChat.Client/Components/Pages/Error.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9FcnJvci5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/nedowas/stuff/test/cisharp/voiceChat/VoiceChat.Client/Components/Pages/HomePage/HomePage.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9Ib21lUGFnZS9Ib21lUGFnZS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/nedowas/stuff/test/cisharp/voiceChat/VoiceChat.Client/Components/Pages/Login/Login.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9Mb2dpbi9Mb2dpbi5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/nedowas/stuff/test/cisharp/voiceChat/VoiceChat.Client/Components/Pages/NotFound.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9Ob3RGb3VuZC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/nedowas/stuff/test/cisharp/voiceChat/VoiceChat.Client/Components/Pages/Register/Register.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9SZWdpc3Rlci9SZWdpc3Rlci5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/nedowas/stuff/test/cisharp/voiceChat/VoiceChat.Client/Components/Pages/Room/Room.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9Sb29tL1Jvb20ucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/nedowas/stuff/test/cisharp/voiceChat/VoiceChat.Client/Components/Routes.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9Sb3V0ZXMucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/nedowas/stuff/test/cisharp/voiceChat/VoiceChat.Client/Components/_Imports.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9fSW1wb3J0cy5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/nedowas/stuff/test/cisharp/voiceChat/VoiceChat.Client/Components/Layout/MainLayout.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9MYXlvdXQvTWFpbkxheW91dC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = b-kcrnfucfvy
+
+[/home/nedowas/stuff/test/cisharp/voiceChat/VoiceChat.Client/Components/Layout/NavMenu.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9MYXlvdXQvTmF2TWVudS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = b-bmiybnwfvu
+
+[/home/nedowas/stuff/test/cisharp/voiceChat/VoiceChat.Client/Components/Layout/ReconnectModal.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9MYXlvdXQvUmVjb25uZWN0TW9kYWwucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = b-7tjo8pauf6

@@ -1,0 +1,470 @@
+@page "/room/{roomId:int}"
+@rendermode InteractiveServer
+@using VoiceChat.Client.Models
+@using Microsoft.AspNetCore.Components;
+@using VoiceChat.Client.Services;
+@using Microsoft.AspNetCore.SignalR.Client;
+@inject NavigationManager Navigation
+
+@inject VoiceChat.Client.Services.ApiService ApiService
+
+<PageTitle>@(room?.Name ?? "Voice room")</PageTitle>
+
+<div class="room-page">
+    <div class="room-header">
+        <button class="back-button" @onclick="GoBack">←</button>
+
+        <div class="room-heading">
+            @if (loading)
+            {
+                <span>Loading room...</span>
+            }
+            else
+            {
+                <p class="eyebrow">Ovozli chat</p>
+                <h1>@room.Name</h1>
+            }
+        </div>
+    </div>
+
+    @if (!string.IsNullOrWhiteSpace(error))
+    {
+        <div class="status error">@error</div>
+    }
+
+    <div class="room-content">
+        <aside class="sidebar participants-panel">
+            <h3>Qatnashuvchilar</h3>
+            <div class="participant-list">
+                @foreach (var participant in participants)
+                {
+                    <div class="participant-item">
+                        <span class="avatar">@participant.Initials</span>
+                        <div>
+                            <strong>@participant.Name</strong>
+                            <small>@participant.Status</small>
+                        </div>
+                    </div>
+                }
+            </div>
+        </aside>
+
+        <main class="chat-panel">
+            <div class="messages">
+                @if (loading)
+                {
+                    <div class="empty-state">Loading messages...</div>
+                }
+                else if (!messages.Any())
+                {
+                    <div class="empty-state">Hali xabar yo'q, Nimadir yozvorila</div>
+                }
+                else
+                {
+                    
+                    @foreach (var message in messages)
+                    {
+                        <div class="message-item">
+                            <div class="message-header">
+                                <strong>@message.SenderName</strong>
+                                <span>@message.Timestamp.ToLocalTime().ToString(format: "HH:mm")</span>
+                            </div>
+                            <p>@message.Content</p>
+                        </div>
+                    }
+                }
+            </div>
+
+            <EditForm Model="chatModel" FormName="chatMessageForm" OnValidSubmit="SendMessageAsync">
+                <div class="composer">
+                    <InputText @bind-Value="chatModel.Text" class="composer-input" placeholder="Type a message..." />
+                    <button type="submit" class="primary-button" disabled="@sending">@((sending) ? "Sending..." :
+                                                                            "Send")</button>
+                    </div>
+                </EditForm>
+            </main>
+
+            <aside class="sidebar controls-panel">
+                <h3>Ovoz boshqaruvi</h3>
+                <div class="control-stack">
+                    <button class="action-button @(isMuted ? "muted" : "")" @onclick="ToggleMute">
+                        @(isMuted ? "Unmute" : "Mute")
+                    </button>
+                    <button class="action-button @(isCameraOn ? "" : "muted")" @onclick="ToggleCamera">
+                        @(isCameraOn ? "Camera on" : "Camera off")
+                    </button>
+                    <button class="action-button danger" @onclick="LeaveRoom">Xonadan chiqish</button>
+                </div>
+
+                <div class="room-meta">
+                    <p><strong>Xona ID:</strong> @RoomId</p>
+
+                    @if (!string.IsNullOrWhiteSpace(room.Description))
+                    {
+                        <h3>Guruh xaqida</h3>
+                        <p>@room.Description</p>
+                    }
+                </div>
+            </aside>
+        </div>
+    </div>
+
+@code {
+
+
+    [Parameter]
+    public int RoomId { get; set; }
+
+    private Models.Room room = new("", 0, "");
+    private List<RoomMessage> messages = new List<RoomMessage>();
+
+    private ChatHub chatHub = new();
+
+    private ChatFormModel chatModel = new();
+    private bool loading = true;
+    private bool sending = false;
+    private bool isMuted = false;
+    private bool isCameraOn = true;
+    private string? error;
+    private HubConnection? hubConnection;
+    private List<ParticipantItem> participants = new List<ParticipantItem>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        hubConnection = new HubConnectionBuilder()
+    .WithUrl("http://localhost:5156/VoiceHub")
+    .WithAutomaticReconnect()
+    .Build();
+
+        hubConnection.On<string>("ReceiveMessage", message =>
+        {
+            messages.Add(new RoomMessage
+            {
+                Content = message,
+                SenderId = 1, // Replace with actual sender ID
+                SenderName = "User", // Replace with actual sender name
+                RoomId = RoomId,
+                Timestamp = DateTime.UtcNow
+            });
+            InvokeAsync(StateHasChanged);
+        });
+
+        await hubConnection.StartAsync();
+        await hubConnection.InvokeAsync("JoinRoom", RoomId);
+        await LoadRoomAsync();
+    }
+
+    private async Task LoadRoomAsync()
+    {
+        loading = true;
+        error = null;
+
+        try
+        {
+            room = await ApiService.GetRoomByIdAsync(RoomId);
+            messages = await ApiService.GetRoomMessagesAsync(RoomId);
+        }
+        catch (Exception ex)
+        {
+            error = ex.Message;
+        }
+        finally
+        {
+            loading = false;
+        }
+    }
+
+    private async Task SendMessageAsync()
+    {
+        if (string.IsNullOrWhiteSpace(chatModel.Text))
+            return;
+
+        var content = chatModel.Text.Trim();
+        chatModel.Text = string.Empty;
+
+        if (hubConnection is not null)
+        {
+            await hubConnection.InvokeAsync("SendMessage", RoomId, content);
+        }
+
+        await ApiService.SendRoomMessageAsync(RoomId, 1, content);
+    }
+
+    private void ToggleMute()
+    {
+        isMuted = !isMuted;
+    }
+
+    private void ToggleCamera()
+    {
+        isCameraOn = !isCameraOn;
+    }
+
+    private void GoBack()
+    {
+        Navigation.NavigateTo("/homePage");
+    }
+
+    private void LeaveRoom()
+    {
+        Navigation.NavigateTo("/");
+    }
+
+    private sealed class ChatFormModel
+    {
+        public string Text { get; set; } = string.Empty;
+    }
+
+    private sealed class ParticipantItem
+    {
+        public ParticipantItem(string initials, string name, string status)
+        {
+            Initials = initials;
+            Name = name;
+            Status = status;
+        }
+
+        public string Initials { get; set; }
+        public string Name { get; set; }
+        public string Status { get; set; }
+    }
+}
+
+}
+<style>
+    .room-page {
+        display: fill;
+        flex-direction: column;
+        gap: 1.25rem;
+        min-height: calc(100vh - 80px);
+        padding: 1.5rem;
+        color: #f2f5ff;
+        background: linear-gradient(180deg, #0d162f 0%, #101b37 100%);
+    
+    }
+
+    .room-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        padding: 0.25rem 0;
+    }
+
+    .room-heading {
+        flex: 1;
+        text-align: center;
+    }
+
+    .eyebrow {
+        margin: 0;
+        font-size: 0.75rem;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: #8ca0d6;
+    }
+
+    .room-heading h1 {
+        margin: 0.25rem 0 0;
+        font-size: clamp(2rem, 3vw, 3rem);
+    }
+
+    .back-button,
+    .primary-button,
+    .action-button {
+        border: 0;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: transform 0.2s ease, opacity 0.2s ease;
+    }
+
+    .back-button,
+    .action-button {
+        background: rgba(255, 255, 255, 0.08);
+        color: #eef4ff;
+        padding: 0.75rem 1rem;
+    }
+
+    .primary-button {
+        background: linear-gradient(135deg, #5c7cff, #7c6ef5);
+        color: white;
+        padding: 0.8rem 1.2rem;
+        font-weight: 700;
+    }
+
+    .back-button:hover,
+    .primary-button:hover,
+    .action-button:hover {
+        transform: translateY(-1px);
+    }
+
+    .room-content {
+        display: grid;
+        grid-template-columns: 260px minmax(0, 1fr) 260px;
+        gap: 1.25rem;
+        flex: 1;
+        min-height: 0;
+    }
+
+    .sidebar,
+    .chat-panel {
+        background: rgba(18, 28, 51, 0.78);
+        border: 1px solid rgba(166, 180, 255, 0.15);
+        border-radius: 18px;
+        box-shadow: 0 12px 30px rgba(12, 17, 28, 0.22);
+    }
+
+    .sidebar {
+        padding: 1.25rem;
+    }
+
+    .sidebar h3,
+    .controls-panel h3 {
+        margin: 0 0 1rem;
+        font-size: 1.1rem;
+    }
+
+    .participant-list,
+    .control-stack {
+        display: flex;
+        flex-direction: column;
+        gap: 0.8rem;
+    }
+
+    .participant-item {
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+        padding: 0.7rem 0.8rem;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.02);
+    }
+
+    .participant-item strong,
+    .participant-item small {
+        display: block;
+    }
+
+    .participant-item small {
+        color: #a3afce;
+    }
+
+    .avatar {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2.4rem;
+        height: 2.4rem;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #7f8cff, #44b0d7);
+        font-weight: 700;
+    }
+
+    .chat-panel {
+        display: flex;
+        flex-direction: column;
+        padding: 1.25rem;
+        min-height: 0;
+    }
+
+    .messages {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 0.9rem;
+        overflow: auto;
+        padding-right: 0.25rem;
+    }
+
+    .message-item {
+        max-width: 80%;
+        padding: 0.8rem 0.9rem;
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .message-item-my {
+        max-width: 80%;
+        padding: 0, 0, 0, 0.9rem;
+        border-radius: 14px;
+        background: rgb(55, 74, 179);
+        border: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .message-header {
+        display: flex;
+        justify-content: space-between;
+        gap: 0.5rem;
+        margin-bottom: 0.35rem;
+        font-size: 0.8rem;
+        color: #c7d1ef;
+    }
+
+    .message-item p {
+        margin: 0;
+        line-height: 1.5;
+    }
+
+    .empty-state {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 160px;
+        color: #9baed4;
+    }
+
+    .composer {
+        display: flex;
+        gap: 0.75rem;
+        margin-top: 1rem;
+    }
+
+    .composer-input {
+        flex: 1;
+        border: 1px solid rgba(166, 180, 255, 0.2);
+        background: rgba(9, 15, 27, 0.8);
+        color: #edf3ff;
+        border-radius: 12px;
+        padding: 0.85rem 1rem;
+    }
+
+    .composer-input::placeholder {
+        color: #8da2d8;
+    }
+
+    .action-button.muted {
+        opacity: 0.7;
+    }
+
+    .action-button.danger {
+        background: rgba(238, 88, 88, 0.12);
+        color: #ffb6b6;
+    }
+
+
+    .status.error {
+        border-radius: 12px;
+        background: rgba(200, 50, 50, 0.12);
+        color: #ffb9b9;
+        border: 1px solid rgba(255, 120, 120, 0.3);
+        padding: 0.75rem 1rem;
+    }
+
+    @@media (max-width: 980px) {
+        .room-content {
+            grid-template-columns: 1fr;
+        }
+
+        .room-header {
+            flex-wrap: wrap;
+        }
+
+        .room-heading {
+            order: -1;
+            width: 100%;
+        }
+    }
+</style>
+
+
