@@ -100,7 +100,6 @@ namespace VoiceChat.Client.Services
             response.EnsureSuccessStatusCode();
 
             var messages = await response.Content.ReadFromJsonAsync<List<RoomMessage>>() ?? new List<RoomMessage>();
-            Console.WriteLine($"Messages for Room ID {roomId}:");
             return messages;
         }
 
@@ -125,7 +124,6 @@ namespace VoiceChat.Client.Services
                 $"&ownerId={ownerId}" +
                 $"&description={Uri.EscapeDataString(description)}",
                 null);
-            Console.WriteLine($"Status: {(int)response.StatusCode} {response}");
             response.EnsureSuccessStatusCode();
         }
         //LOAD ROOMS (FOR HOMEPAGE
@@ -135,7 +133,6 @@ namespace VoiceChat.Client.Services
             response.EnsureSuccessStatusCode();
 
             var rooms = await response.Content.ReadFromJsonAsync<List<Room>>();
-            Console.WriteLine($"Total rooms: {rooms.Count}" + Environment.NewLine + "Status Code" + $"{response.StatusCode}");
             return rooms;
         }
 
@@ -153,7 +150,6 @@ namespace VoiceChat.Client.Services
             request.Headers.Add("X-Session-Token", _session.Token);
 
             var response = await _http.SendAsync(request);
-            Console.WriteLine($"The fuck is happening {response}");
 
             return response.IsSuccessStatusCode;
         }
