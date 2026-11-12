@@ -48,9 +48,8 @@
                 }
             </div>
         </aside>
-
         <main class="chat-panel">
-            <div class="messages">
+            <div class="messages" role="log" aria-live="polite">
                 @if (loading)
                 {
                     <div class="empty-state">Loading messages...</div>
@@ -61,15 +60,17 @@
                 }
                 else
                 {
-                    
                     @foreach (var message in messages)
                     {
-                        <div class="message-item">
-                            <div class="message-header">
-                                <strong>@message.SenderName</strong>
-                                <span>@message.Timestamp.ToLocalTime().ToString(format: "HH:mm")</span>
+                        var isOwnMessage = message.SenderId == _api.GetUserId();
+                        <div class="message-row @(isOwnMessage ? "message-row-mine" : "message-row-other")">
+                            <div class="message-item @(isOwnMessage ? "message-item-mine" : "message-item-other")">
+                                <div class="message-header">
+                                    <strong>@message.SenderName</strong>
+                                    <span>@message.Timestamp.ToLocalTime().ToString("HH:mm")</span>
+                                </div>
+                                <p>@message.Content</p>
                             </div>
-                            <p>@message.Content</p>
                         </div>
                     }
                 }
@@ -77,35 +78,37 @@
 
             <EditForm Model="chatModel" FormName="chatMessageForm" OnValidSubmit="SendMessageAsync">
                 <div class="composer">
-                    <InputText @bind-Value="chatModel.Text" class="composer-input" placeholder="Type a message..." />
-                    <button type="submit" class="primary-button" disabled="@sending">@((sending) ? "Sending..." :
-                                                                            "Send")</button>
-                    </div>
-                </EditForm>
-            </main>
-
-            <aside class="sidebar controls-panel">
-                <h3>Ovoz boshqaruvi</h3>
-                <div class="control-stack">
-                    <button class="action-button @(isMuted ? "muted" : "")" @onclick="ToggleMute">
-                        @(isMuted ? "Unmute" : "Mute")
+                    <InputText @bind-Value="chatModel.Text" class="composer-input"
+                               placeholder="Type a message..." />
+                    <button type="submit" class="primary-button" disabled="@sending">
+                        @(sending ? "Sending..." : "Send")
                     </button>
-                    <button class="action-button @(isCameraOn ? "" : "muted")" @onclick="ToggleCamera">
-                        @(isCameraOn ? "Camera on" : "Camera off")
-                    </button>
-                    <button class="action-button danger" @onclick="LeaveRoom">Xonadan chiqish</button>
                 </div>
+            </EditForm>
+        </main>
 
-                <div class="room-meta">
-                    <p><strong>Xona ID:</strong> @RoomId</p>
+        <aside class="sidebar controls-panel">
+            <h3>Ovoz boshqaruvi</h3>
+            <div class="control-stack">
+                <button class="action-button @(isMuted ? "muted" : "")" @onclick="ToggleMute">
+                    @(isMuted ? "Unmute" : "Mute")
+                </button>
+                <button class="action-button @(isCameraOn ? "" : "muted")" @onclick="ToggleCamera">
+                    @(isCameraOn ? "Camera on" : "Camera off")
+                </button>
+                <button class="action-button danger" @onclick="LeaveRoom">Xonadan chiqish</button>
+            </div>
 
-                    @if (!string.IsNullOrWhiteSpace(room.Description))
-                    {
-                        <h3>Guruh xaqida</h3>
-                        <p>@room.Description</p>
-                    }
-                </div>
-            </aside>
+            <div class="room-meta">
+                <p><strong>Xona ID:</strong> @RoomId</p>
+
+                @if (!string.IsNullOrWhiteSpace(room.Description))
+                {
+                    <h3>Guruh xaqida</h3>
+                    <p>@room.Description</p>
+                }
+            </div>
+        </aside>
         </div>
     </div>
 
@@ -114,7 +117,6 @@
 
     [Parameter]
     public int RoomId { get; set; }
-
     private Models.Room room = new("", 0, "");
     private List<RoomMessage> messages = new List<RoomMessage>();
 
@@ -128,21 +130,29 @@
     private string? error;
     private HubConnection? hubConnection;
     private List<ParticipantItem> participants = new List<ParticipantItem>();
+    private readonly ApiService _api;
+    public Room(ApiService api) => _api = api;
+
 
     protected override async Task OnInitializedAsync()
     {
+        if (await _api.ValidateSessionAsync() == false)
+        {
+            Navigation.NavigateTo("/login");
+            return;
+        }
         hubConnection = new HubConnectionBuilder()
     .WithUrl("http://localhost:5156/VoiceHub")
     .WithAutomaticReconnect()
     .Build();
 
-        hubConnection.On<string>("ReceiveMessage", message =>
+        hubConnection.On<RoomMessage>("ReceiveMessage", message =>
         {
             messages.Add(new RoomMessage
             {
-                Content = message,
-                SenderId = 1, // Replace with actual sender ID
-                SenderName = "User", // Replace with actual sender name
+                Content = message.Content,
+                SenderId = message.SenderId, // Replace with actual sender ID
+                SenderName = message.SenderName, // Replace with actual sender name
                 RoomId = RoomId,
                 Timestamp = DateTime.UtcNow
             });
@@ -161,8 +171,8 @@
 
         try
         {
-            room = await ApiService.GetRoomByIdAsync(RoomId);
-            messages = await ApiService.GetRoomMessagesAsync(RoomId);
+            room = await _api.GetRoomByIdAsync(RoomId);
+            messages = await _api.GetRoomMessagesAsync(RoomId);
         }
         catch (Exception ex)
         {
@@ -184,10 +194,17 @@
 
         if (hubConnection is not null)
         {
-            await hubConnection.InvokeAsync("SendMessage", RoomId, content);
+            await hubConnection.InvokeAsync("SendMessage", RoomId, new RoomMessage
+            {
+                Content = content,
+                SenderId = _api.GetUserId(),
+                SenderName = _api.GetUserName(),
+                RoomId = RoomId,
+                Timestamp = DateTime.UtcNow
+            });
         }
 
-        await ApiService.SendRoomMessageAsync(RoomId, 1, content);
+        await _api.SendRoomMessageAsync(RoomId, content);
     }
 
     private void ToggleMute()
@@ -233,14 +250,17 @@
 }
 <style>
     .room-page {
-        display: fill;
+        box-sizing: border-box;
+        display: flex;
         flex-direction: column;
         gap: 1.25rem;
-        min-height: calc(100vh - 80px);
+        height: calc(100vh - 3.5rem);
+        height: calc(100dvh - 3.5rem);
+        min-height: 0;
         padding: 1.5rem;
         color: #f2f5ff;
         background: linear-gradient(180deg, #0d162f 0%, #101b37 100%);
-    
+        overflow: hidden;
     }
 
     .room-header {
@@ -304,6 +324,7 @@
         gap: 1.25rem;
         flex: 1;
         min-height: 0;
+        min-width: 0;
     }
 
     .sidebar,
@@ -365,31 +386,49 @@
         flex-direction: column;
         padding: 1.25rem;
         min-height: 0;
+        min-width: 0;
+        overflow: hidden;
     }
 
     .messages {
         flex: 1;
+        min-height: 0;
         display: flex;
         flex-direction: column;
         gap: 0.9rem;
-        overflow: auto;
+        overflow-y: auto;
+        overscroll-behavior: contain;
         padding-right: 0.25rem;
     }
 
-    .message-item {
-        max-width: 80%;
-        padding: 0.8rem 0.9rem;
-        border-radius: 14px;
-        background: rgba(255, 255, 255, 0.04);
-        border: 1px solid rgba(255, 255, 255, 0.04);
+    .message-row {
+        display: flex;
+        width: 100%;
     }
 
-    .message-item-my {
-        max-width: 80%;
-        padding: 0, 0, 0, 0.9rem;
+    .message-row-other {
+        justify-content: flex-start;
+    }
+
+    .message-row-mine {
+        justify-content: flex-end;
+    }
+
+    .message-item {
+        max-width: min(80%, 42rem);
+        padding: 0.8rem 0.9rem;
         border-radius: 14px;
+        overflow-wrap: anywhere;
+    }
+
+    .message-item-other {
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .message-item-mine {
         background: rgb(55, 74, 179);
-        border: 1px solid rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(120, 139, 255, 0.35);
     }
 
     .message-header {
@@ -451,9 +490,13 @@
         padding: 0.75rem 1rem;
     }
 
-    @@media (max-width: 980px) {
+    @@media (max-width: 1200px) {
         .room-content {
-            grid-template-columns: 1fr;
+            grid-template-columns: minmax(0, 1fr) 220px;
+        }
+
+        .participants-panel {
+            display: none;
         }
 
         .room-header {
@@ -465,6 +508,19 @@
             width: 100%;
         }
     }
-</style>
 
+    @@media (max-width: 700px) {
+        .room-page {
+            padding: 1rem;
+        }
+
+        .room-content {
+            grid-template-columns: minmax(0, 1fr);
+        }
+
+        .controls-panel {
+            display: none;
+        }
+    }
+</style>
 

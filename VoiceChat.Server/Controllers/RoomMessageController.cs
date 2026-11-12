@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using VoiceChat.Server.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace VoiceChat.Server.Controllers
 {
@@ -21,19 +22,39 @@ namespace VoiceChat.Server.Controllers
         //
 
         [HttpPost("sendMessage")]
-        public IActionResult SendMessage(string text, int authorId, int roomId)
+        public IActionResult SendMessage(string text, string session, int roomId)
         {
-            var message = new RoomMessage(roomId, authorId, text);
+            int? userId = _db.UserSessions.FirstOrDefault(s => s.Token == session)?.UserId ?? 0;
+            if (userId == null || userId == 0)
+            {
+                return BadRequest("Invalid session token");
+            }
+            var message = new RoomMessage(roomId, userId.Value, text);
             _db.RoomMessages.Add(message);
             _db.SaveChanges();
-            Console.WriteLine($"Message '{text}' from user {authorId} was sent!");
+            Console.WriteLine($"Message '{text}' from user {userId.Value} was sent!");
             return Ok();
         }
 
         [HttpGet("getMessages")]
-        public IActionResult GetMessages(int roomId)
+        public async Task<IActionResult> GetMessages(int roomId)
         {
-            var messages = _db.RoomMessages.Where(m => m.RoomId == roomId).ToList();
+            var messages = await (
+                from message in _db.RoomMessages
+                join user in _db.Users
+                    on message.SenderId equals user.Id
+                where message.RoomId == roomId
+                select new RoomMessageDto
+                {
+                    Id = message.Id,
+                    RoomId = message.RoomId,
+                    SenderId = message.SenderId,
+                    SenderName = user.Name,
+                    Content = message.Content,
+                    Timestamp = message.Timestamp
+                }
+            ).ToListAsync();
+
             return Ok(messages);
         }
 

@@ -46,9 +46,6 @@
     private ApiService Api { get; set; } = null!;
 
     [Inject]
-    private SessionService Session { get; set; } = null!;
-
-    [Inject]
     private NavigationManager Navigation { get; set; } = null!;
 
     private LoginRequest LoginModel { get; set; } = new();
@@ -71,12 +68,6 @@
                 ErrorMessage = "Invalid email or password.";
                 return;
             }
-            Session.SetSession(
-                response.Token ?? "",
-                response.UserId ?? 0,
-                response.UserName ?? ""
-            );
-
             Navigation.NavigateTo("/homePage");
         }
         catch

@@ -18,7 +18,7 @@ public class VoiceHub : Hub
         );
     }
 
-    public async Task SendMessage(int roomId, string message)
+    public async Task SendMessage(int roomId, RoomMessage message)
     {
         await Clients.Group($"room-{roomId}")
             .SendAsync(

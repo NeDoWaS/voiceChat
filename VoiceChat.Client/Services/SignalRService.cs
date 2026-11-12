@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.SignalR;
+using VoiceChat.Client.Models;
 
 namespace VoiceChat.Client.Services
 {
@@ -20,12 +21,20 @@ namespace VoiceChat.Client.Services
             );
         }
 
-        public async Task SendMessage(int roomId, string message)
+        public async Task SendMessage(int roomId, RoomMessage message)
         {
             await Clients.Group($"room-{roomId}")
                 .SendAsync(
                     "ReceiveMessage",
-                    message
+                    new RoomMessage
+                    {
+                        Id = message.Id,
+                        RoomId = message.RoomId,
+                        Content = message.Content,
+                        SenderId = message.SenderId,
+                        SenderName = message.SenderName,
+                        Timestamp = message.Timestamp
+                    }
                 );
         }
     }

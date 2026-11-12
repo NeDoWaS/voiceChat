@@ -136,7 +136,7 @@ namespace VoiceChat.Server.Controllers
         }
         private async Task<UserSession?> GetValidSessionAsync()
         {
-            if (!Request.Headers.TryGetValue(
+            if (!Request.Headers.TryGetValue( 
                 "X-Session-Token", out var headerValue))
             {
                 return null;

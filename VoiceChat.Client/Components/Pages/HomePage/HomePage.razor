@@ -7,7 +7,6 @@
 
 @inject HttpClient Http
 @inject NavigationManager Navigation
-@inject VoiceChat.Client.Services.ApiService ApiService
 @rendermode InteractiveServer
 
 <PageTitle>VoiceChat</PageTitle>
@@ -75,169 +74,174 @@
     }
 </div>
 @code {
+    //public VoiceChat.Client.Services.ApiService ApiService { get; set; } = default!;
+    private bool loading = true;
+    //private int roomId = 0;
+    //private string roomName { get; set; } = string.Empty;
+    private string? error;
 
-        //public VoiceChat.Client.Services.ApiService ApiService { get; set; } = default!;
-        private bool loading = true;
-        //private int roomId = 0;
-        //private string roomName { get; set; } = string.Empty;
-        private string? error;
+    public List<Models.Room> rooms = new List<Models.Room>();
 
-        public List<Models.Room> rooms = new List<Models.Room>();
+    // Логика создания комнаты
+    private readonly ApiService _api;
+    public HomePage(ApiService api) => _api = api;
 
-
-        // Логика создания комнаты
-
-
-        protected override async Task OnInitializedAsync()
+    protected override async Task OnInitializedAsync()
+    {
+        if (await _api.ValidateSessionAsync() == false)
         {
-            await LoadRooms();
+            Console.WriteLine("The sessionValidate sent you back...");
+            Navigation.NavigateTo("/login");
+            return;
         }
+        await LoadRooms();
+    }
 
 
-        private void CreateRoom(string roomName, int ownerId, string description = "")
+    private void CreateRoom(string roomName, int ownerId, string description = "")
+    {
+        if (!string.IsNullOrWhiteSpace(roomName))
         {
-            if (!string.IsNullOrWhiteSpace(roomName))
-            {
-                rooms.Add(new Models.Room(roomName, 0, ""));
-                ApiService.CreateRoomAsync(roomName, 0, "").Wait();
-                Console.WriteLine($"Room {roomName} was created! ");
+            rooms.Add(new Models.Room(roomName, 0, ""));
+            _api.CreateRoomAsync(roomName, 0, "").Wait();
+            Console.WriteLine($"Room {roomName} was created! ");
 
-                roomName = string.Empty;
-                StateHasChanged();
-            }
-
-        }
-        private async Task NavigateToRoomComponent(int roomId)
-        {
-            Navigation.NavigateTo($"/room/{roomId}");
-            Console.WriteLine($"Navigating to room {roomId}...");
-        }
-        private async Task<List<Models.Room>> LoadRooms()
-        {
-            rooms = await ApiService.GetRoomsAsync();
-            loading = false;
+            roomName = string.Empty;
             StateHasChanged();
-
-            return rooms;
         }
+
+    }
+    private async Task NavigateToRoomComponent(int roomId)
+    {
+        Navigation.NavigateTo($"/room/{roomId}");
+        Console.WriteLine($"Navigating to room {roomId}...");
+    }
+    private async Task<List<Models.Room>> LoadRooms()
+    {
+        rooms = await _api.GetRoomsAsync();
+        loading = false;
+        StateHasChanged();
+
+        return rooms;
+    }
 }
 
 <style>
     .voice-chat-container {
-    max-width: 500px;
-    margin: 2rem auto;
-    padding: 1.5rem;
-    background-color: #f8f9fa;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-}
+        max-width: 500px;
+        margin: 2rem auto;
+        padding: 1.5rem;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
 
-h1 {
-    font-size: 2rem;
-    color: #212529;
-    margin-bottom: 1.5rem;
-    font-weight: 700;
-}
+    h1 {
+        font-size: 2rem;
+        color: #212529;
+        margin-bottom: 1.5rem;
+        font-weight: 700;
+    }
 
-.action-section {
-    margin-bottom: 2rem;
-}
+    .action-section {
+        margin-bottom: 2rem;
+    }
 
-.btn-primary {
-    background-color: #0d6efd;
-    color: white;
-    border: none;
-    padding: 0.6rem 1.2rem;
-    font-size: 1rem;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-}
+    .btn-primary {
+        background-color: #0d6efd;
+        color: white;
+        border: none;
+        padding: 0.6rem 1.2rem;
+        font-size: 1rem;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+    }
 
-.btn-primary:hover {
-    background-color: #0b5ed7;
-}
+    .btn-primary:hover {
+        background-color: #0b5ed7;
+    }
 
-.rooms-section h2 {
-    font-size: 1.4rem;
-    color: #495057;
-    margin-bottom: 0.5rem;
-}
+    .rooms-section h2 {
+        font-size: 1.4rem;
+        color: #495057;
+        margin-bottom: 0.5rem;
+    }
 
-.room-card {
-    padding: 100;
-    border: 5;
-    border-color: black;
-}
+    .room-card {
+        padding: 100;
+        border: 5;
+        border-color: black;
+    }
 
 
-.rooms-divider {
-    border: 0;
-    border-top: 2px solid #dee2e6;
-    margin-top: 0;
-    margin-bottom: 1rem;
-}
+    .rooms-divider {
+        border: 0;
+        border-top: 2px solid #dee2e6;
+        margin-top: 0;
+        margin-bottom: 1rem;
+    }
 
-.rooms-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
+    .rooms-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
 
-.room-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.75rem 1rem;
-    background-color: white;
-    border: 1px solid #e9ecef;
-    border-radius: 6px;
-    margin-bottom: 0.5rem;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
+    .room-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem 1rem;
+        background-color: white;
+        border: 1px solid #e9ecef;
+        border-radius: 6px;
+        margin-bottom: 0.5rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
 
-.room-item:hover {
-    background-color: #e9ecef;
-    border-color: #ced4da;
-}
+    .room-item:hover {
+        background-color: #e9ecef;
+        border-color: #ced4da;
+    }
 
-.room-info {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
+    .room-info {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
 
-.room-icon {
-    font-size: 1.1rem;
-}
+    .room-icon {
+        font-size: 1.1rem;
+    }
 
-.room-name {
-    font-weight: 500;
-    color: #212529;
-}
+    .room-name {
+        font-weight: 500;
+        color: #212529;
+    }
 
-.btn-sm {
-    padding: 0.25rem 0.5rem;
-    font-size: 0.875rem;
-    border-radius: 4px;
-}
+    .btn-sm {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.875rem;
+        border-radius: 4px;
+    }
 
-.btn-outline-secondary {
-    background-color: transparent;
-    color: #6c757d;
-    border: 1px solid #6c757d;
-    cursor: pointer;
-}
+    .btn-outline-secondary {
+        background-color: transparent;
+        color: #6c757d;
+        border: 1px solid #6c757d;
+        cursor: pointer;
+    }
 
-.room-item:hover .btn-outline-secondary {
-    background-color: #6c757d;
-    color: white;
-}
+    .room-item:hover .btn-outline-secondary {
+        background-color: #6c757d;
+        color: white;
+    }
 
-.empty-message {
-    color: #6c757d;
-    font-style: italic;
-}
+    .empty-message {
+        color: #6c757d;
+        font-style: italic;
+    }
 </style>

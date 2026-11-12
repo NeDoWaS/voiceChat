@@ -39,6 +39,10 @@ namespace VoiceChat.Server.Migrations
                     b.Property<int>("SenderId")
                         .HasColumnType("integer");
 
+                    b.Property<string>("SenderName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<DateTime>("Timestamp")
                         .HasColumnType("timestamp with time zone");
 

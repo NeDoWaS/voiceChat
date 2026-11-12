@@ -47,16 +47,29 @@ namespace VoiceChat.Server.Controllers
         }
 
         [HttpGet("verifySession")]
-        public IActionResult VerifySession( string sessionToken)
+        public IActionResult VerifySession(
+           [FromHeader(Name = "X-Session-Token")] string sessionToken)
         {
-            var session = _db.UserSessions.FirstOrDefault(s => s.Token == sessionToken);
+            Console.WriteLine($"Request reached verifysession");
+            if (string.IsNullOrWhiteSpace(sessionToken)){
+            Console.WriteLine("sessionToken is null!");
+                return Unauthorized();
+            }
+            var session = _db.UserSessions
+                .FirstOrDefault(s => s.Token == sessionToken);
+
             if (session == null)
             {
-                Console.WriteLine($"Session with token {sessionToken} was not found");
-                return NotFound();
+                Console.WriteLine($"Session with token {sessionToken} was not found!");
+                return Unauthorized();
             }
-            Console.WriteLine($"Session with token {sessionToken} was verified");
-            return Ok("Session is valid");
+            if (session.ExpiresAt <= DateTime.UtcNow)
+            {
+                Console.WriteLine($"Session with token {sessionToken} has expired!");
+                return Unauthorized();
+            }
+
+            return Ok();
         }
         [HttpGet("getSessionByUserId")]
         public IActionResult GetSessionByUserId(int userId)

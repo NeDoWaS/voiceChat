@@ -132,3 +132,4 @@
 /home/nedowas/stuff/test/cisharp/voiceChat/VoiceChat.Server/bin/Debug/net10.0/Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
 /home/nedowas/stuff/test/cisharp/voiceChat/VoiceChat.Server/bin/Debug/net10.0/Microsoft.IdentityModel.Tokens.dll
 /home/nedowas/stuff/test/cisharp/voiceChat/VoiceChat.Server/bin/Debug/net10.0/System.IdentityModel.Tokens.Jwt.dll
+/home/nedowas/stuff/test/cisharp/voiceChat/VoiceChat.Server/obj/Debug/net10.0/VoiceChat.Server.sourcelink.json

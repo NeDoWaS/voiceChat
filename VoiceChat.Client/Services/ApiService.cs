@@ -54,11 +54,12 @@ namespace VoiceChat.Client.Services
                 Console.WriteLine("Login failed: Invalid response from server.  \n Response content: " + await response.Content.ReadAsStringAsync());
                 return null;
             }
+            _session.SetSession(result.Token, result.UserId, result.UserName);
             return result;
         }
 
         //LOGOUT 
-            public async Task<bool> LogoutUserAsync()
+        public async Task<bool> LogoutUserAsync()
         {
             if (string.IsNullOrWhiteSpace(_session.Token))
             {
@@ -104,11 +105,12 @@ namespace VoiceChat.Client.Services
         }
 
         //SEND MESSAGE
-        public async Task SendRoomMessageAsync(int roomId, int senderId, string content)
+        public async Task SendRoomMessageAsync(int roomId, string content)
         {
             var response = await _http.PostAsync(
                 $"api/roommessage/sendMessage?text={Uri.EscapeDataString(content)}" +
-                $"&authorId={senderId}" +
+                $"&authorId={_session.UserId ?? 0}" +
+                $"&session={_session.Token}" +
                 $"&roomId={roomId}",
                 null);
 
@@ -141,21 +143,27 @@ namespace VoiceChat.Client.Services
         public async Task<bool> ValidateSessionAsync()
         {
             if (string.IsNullOrWhiteSpace(_session.Token))
-            {
                 return false;
-            }
 
-            using var request = new HttpRequestMessage(HttpMethod.Get, "api/User/me");
-            if (request.Headers.TryAddWithoutValidation("X-Session-Token", _session.Token))
-            {
-                var response = await _http.SendAsync(request);
-                return response.IsSuccessStatusCode;
-            }
-            else
-            {
-                Console.WriteLine("Failed to add session token header.");
-                return false;
-            }
+            using var request = new HttpRequestMessage(
+                HttpMethod.Get,
+                "api/UserSession/verifySession"
+            );
+
+            request.Headers.Add("X-Session-Token", _session.Token);
+
+            var response = await _http.SendAsync(request);
+            Console.WriteLine($"The fuck is happening {response}");
+
+            return response.IsSuccessStatusCode;
+        }
+        public int GetUserId()
+        {
+            return _session.UserId ?? 0;
+        }
+        public string GetUserName()
+        {
+            return _session.UserName ?? "";
         }
     }
 }

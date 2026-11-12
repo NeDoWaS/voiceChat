@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("VoiceChat.Server")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+da270319001fd0d00b7a807323bb5cea20933afb")]
 [assembly: System.Reflection.AssemblyProductAttribute("VoiceChat.Server")]
 [assembly: System.Reflection.AssemblyTitleAttribute("VoiceChat.Server")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

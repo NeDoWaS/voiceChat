@@ -1,10 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "089Zdl3LBjs=",
+  "dgSpecHash": "IycvVJS08c8=",
   "success": true,
   "projectFilePath": "/home/nedowas/stuff/test/cisharp/voiceChat/VoiceChat.Client/VoiceChat.Client.csproj",
   "expectedPackageFiles": [
-    "/home/nedowas/.nuget/packages/microsoft.aspnetcore.app.internal.assets/10.0.13/microsoft.aspnetcore.app.internal.assets.10.0.13.nupkg.sha512",
+    "/home/nedowas/.nuget/packages/microsoft.aspnetcore.app.internal.assets/10.0.15/microsoft.aspnetcore.app.internal.assets.10.0.15.nupkg.sha512",
     "/home/nedowas/.nuget/packages/microsoft.aspnetcore.http.connections.client/10.0.13/microsoft.aspnetcore.http.connections.client.10.0.13.nupkg.sha512",
     "/home/nedowas/.nuget/packages/microsoft.aspnetcore.identity/2.3.13/microsoft.aspnetcore.identity.2.3.13.nupkg.sha512",
     "/home/nedowas/.nuget/packages/microsoft.aspnetcore.signalr.client/10.0.13/microsoft.aspnetcore.signalr.client.10.0.13.nupkg.sha512",

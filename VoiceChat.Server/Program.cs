@@ -12,6 +12,7 @@ builder.Services.AddSignalR();
 builder.Services.AddSwaggerGen();
 builder.Services.AddControllers();
 
+
 //identity
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 
