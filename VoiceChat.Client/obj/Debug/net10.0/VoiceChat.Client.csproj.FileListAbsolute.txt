@@ -77,7 +77,6 @@
 /home/nedowas/stuff/test/cisharp/voiceChat/VoiceChat.Client/obj/Debug/net10.0/VoiceChat.Client.pdb
 /home/nedowas/stuff/test/cisharp/voiceChat/VoiceChat.Client/obj/Debug/net10.0/VoiceChat.Client.genruntimeconfig.cache
 /home/nedowas/stuff/test/cisharp/voiceChat/VoiceChat.Client/obj/Debug/net10.0/ref/VoiceChat.Client.dll
-/home/nedowas/stuff/test/cisharp/voiceChat/VoiceChat.Client/obj/Debug/net10.0/compressed/j789ye4bi7-{0}-5ipweew5fc-5ipweew5fc.gz
 /home/nedowas/stuff/test/cisharp/voiceChat/VoiceChat.Client/obj/Debug/net10.0/VoiceChat.Client.csproj.AssemblyReference.cache
 /home/nedowas/stuff/test/cisharp/voiceChat/VoiceChat.Client/bin/Debug/net10.0/Microsoft.AspNetCore.Http.Connections.Client.dll
 /home/nedowas/stuff/test/cisharp/voiceChat/VoiceChat.Client/bin/Debug/net10.0/Microsoft.AspNetCore.SignalR.Client.dll
@@ -85,8 +84,11 @@
 /home/nedowas/stuff/test/cisharp/voiceChat/VoiceChat.Client/obj/Debug/net10.0/VoiceCha.99AD9FA8.Up2Date
 /home/nedowas/stuff/test/cisharp/voiceChat/VoiceChat.Client/obj/Debug/net10.0/compressed/z4lvu51qo4-{0}-msw4i0efye-msw4i0efye.gz
 /home/nedowas/stuff/test/cisharp/voiceChat/VoiceChat.Client/obj/Debug/net10.0/compressed/o89c1cgj93-{0}-69etwr84bc-69etwr84bc.gz
-/home/nedowas/stuff/test/cisharp/voiceChat/VoiceChat.Client/obj/Debug/net10.0/compressed/1w92ar9ff7-{0}-qj9936zfv1-qj9936zfv1.gz
-/home/nedowas/stuff/test/cisharp/voiceChat/VoiceChat.Client/obj/Debug/net10.0/compressed/958hpmrm12-{0}-qj9936zfv1-qj9936zfv1.gz
 /home/nedowas/stuff/test/cisharp/voiceChat/VoiceChat.Client/obj/Debug/net10.0/VoiceChat.Client.sourcelink.json
 /home/nedowas/stuff/test/cisharp/voiceChat/VoiceChat.Client/obj/Debug/net10.0/compressed/oc9m21hzuw-{0}-whefm3rrpu-whefm3rrpu.gz
 /home/nedowas/stuff/test/cisharp/voiceChat/VoiceChat.Client/obj/Debug/net10.0/compressed/01wu49msip-{0}-kyitu4x8cy-kyitu4x8cy.gz
+/home/nedowas/stuff/test/cisharp/voiceChat/VoiceChat.Client/obj/Debug/net10.0/compressed/j789ye4bi7-{0}-fbgnjbbj1h-fbgnjbbj1h.gz
+/home/nedowas/stuff/test/cisharp/voiceChat/VoiceChat.Client/obj/Debug/net10.0/scopedcss/Components/Pages/HomePage/Homepage.razor.rz.scp.css
+/home/nedowas/stuff/test/cisharp/voiceChat/VoiceChat.Client/obj/Debug/net10.0/scopedcss/Components/Pages/Profile/Profile.razor.rz.scp.css
+/home/nedowas/stuff/test/cisharp/voiceChat/VoiceChat.Client/obj/Debug/net10.0/compressed/1w92ar9ff7-{0}-f0jwi31l02-f0jwi31l02.gz
+/home/nedowas/stuff/test/cisharp/voiceChat/VoiceChat.Client/obj/Debug/net10.0/compressed/958hpmrm12-{0}-f0jwi31l02-f0jwi31l02.gz

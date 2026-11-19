@@ -1,11 +1,10 @@
 @page "/room/{roomId:int}"
-@rendermode InteractiveServer
 @using VoiceChat.Client.Models
 @using Microsoft.AspNetCore.Components;
 @using VoiceChat.Client.Services;
 @using Microsoft.AspNetCore.SignalR.Client;
 @inject NavigationManager Navigation
-
+@inject WebRTCService WebRTC
 @inject VoiceChat.Client.Services.ApiService ApiService
 
 <PageTitle>@(room?.Name ?? "Voice room")</PageTitle>
@@ -90,7 +89,7 @@
         <aside class="sidebar controls-panel">
             <h3>Ovoz boshqaruvi</h3>
             <div class="control-stack">
-                <button class="action-button @(isMuted ? "muted" : "")" @onclick="ToggleMute">
+                <button class="action-button @(isMuted ? "muted" : "")" @onclick="ToggleMicrophone">
                     @(isMuted ? "Unmute" : "Mute")
                 </button>
                 <button class="action-button @(isCameraOn ? "" : "muted")" @onclick="ToggleCamera">
@@ -125,7 +124,7 @@
     private ChatFormModel chatModel = new();
     private bool loading = true;
     private bool sending = false;
-    private bool isMuted = false;
+    private bool isMuted = true;
     private bool isCameraOn = true;
     private string? error;
     private HubConnection? hubConnection;
@@ -136,11 +135,15 @@
 
     protected override async Task OnInitializedAsync()
     {
+
+
         if (await _api.ValidateSessionAsync() == false)
         {
             Navigation.NavigateTo("/login");
             return;
         }
+
+        
         hubConnection = new HubConnectionBuilder()
     .WithUrl("http://localhost:5156/VoiceHub")
     .WithAutomaticReconnect()
@@ -207,8 +210,21 @@
         await _api.SendRoomMessageAsync(RoomId, content);
     }
 
-    private void ToggleMute()
+    private async Task StartMicrophone()
     {
+        await WebRTC.StartMicrophoneAsync();
+    }
+
+    private async Task ToggleMicrophone()
+    {
+        if (isMuted)
+        {
+            await WebRTC.StartMicrophoneAsync();
+        }
+        else
+        {
+            await WebRTC.StopMicrophoneAsync();
+        }
         isMuted = !isMuted;
     }
 
@@ -523,4 +539,3 @@
         }
     }
 </style>
-

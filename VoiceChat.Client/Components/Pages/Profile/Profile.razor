@@ -1,0 +1,83 @@
+@page "/profile"
+
+@using VoiceChat.Client.Models
+@using VoiceChat.Client.Services
+
+<PageTitle>My Profile</PageTitle>
+
+<div class="profile-container">
+
+    <h1>My Profile</h1>
+
+    @if (isLoading)
+    {
+        <p>Loading profile...</p>
+    }
+    else if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <p class="error">@errorMessage</p>
+    }
+    else if (user != null)
+    {
+        <div class="profile-card">
+
+            <div class="profile-avatar">
+                @user.Name.Substring(0, 1).ToUpper()
+            </div>
+
+            <h2>@user.Name</h2>
+            <p class="email">@user.Email</p>
+
+            <hr />
+
+            <div class="profile-info">
+                <p><strong>User ID:</strong> @user.Id</p>
+                <p><strong>Name:</strong> @user.Name</p>
+                <p><strong>Email:</strong> @user.Email</p>
+                <p><strong>Joined:</strong> @user.CreatedAt.ToString("dd MMMM yyyy")</p>
+            </div>
+
+        </div>
+    }
+
+</div>
+
+@code {
+    [Inject]
+    private ApiService Api { get; set; } = null!;
+    [Inject]
+    private SessionService Session { get; set; } = null!;
+    
+    private UserProfile? user;
+    private bool isLoading = true;
+    private string errorMessage = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            // Replace this with the actual token getter
+            // from your SessionService.
+            string? token = Session.Token;
+
+            if (string.IsNullOrEmpty(token))
+            {
+                errorMessage = "You are not logged in.";
+                return;
+            }
+
+            user = await Api.GetCurrentUserAsync(token);
+
+            if (user == null)
+                errorMessage = "Could not retrieve your profile.";
+        }
+        catch (HttpRequestException ex)
+        {
+            errorMessage = $"Failed to load profile: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+}

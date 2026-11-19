@@ -1,8 +1,10 @@
 @page "/login"
 @using System.ComponentModel.DataAnnotations
+@using System.Net.Http
+@using System.Text.Json
 @using Microsoft.AspNetCore.Components
+@using Microsoft.Extensions.Logging
 @using VoiceChat.Client.Services
-@rendermode InteractiveServer
 <PageTitle>Login</PageTitle>
 
 <div class="auth-container">
@@ -48,6 +50,9 @@
     [Inject]
     private NavigationManager Navigation { get; set; } = null!;
 
+    [Inject]
+    private ILogger<Login> Logger { get; set; } = null!;
+
     private LoginRequest LoginModel { get; set; } = new();
 
     private string? ErrorMessage { get; set; }
@@ -70,9 +75,20 @@
             }
             Navigation.NavigateTo("/homePage");
         }
-        catch
+        catch (HttpRequestException ex)
         {
-            ErrorMessage = "Something went wrong.";
+            Logger.LogError(ex, "Unable to reach the login service.");
+            ErrorMessage = "Unable to reach the login service. Please try again later.";
+        }
+        catch (TaskCanceledException ex)
+        {
+            Logger.LogError(ex, "The login request timed out.");
+            ErrorMessage = "The login request timed out. Please try again.";
+        }
+        catch (JsonException ex)
+        {
+            Logger.LogError(ex, "The login service returned an invalid response.");
+            ErrorMessage = "The login service returned an invalid response. Please try again later.";
         }
         finally
         {

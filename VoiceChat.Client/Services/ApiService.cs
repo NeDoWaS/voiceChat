@@ -31,7 +31,16 @@ namespace VoiceChat.Client.Services
             return response.IsSuccessStatusCode;
         }
 
+        public async Task<UserProfile?> GetCurrentUserAsync(string sessionToken)
+        {
+            var response = await _http.GetAsync(
+                $"api/user/me?sessionToken={Uri.EscapeDataString(sessionToken)}"
+            );
 
+            response.EnsureSuccessStatusCode();
+
+            return await response.Content.ReadFromJsonAsync<UserProfile>();
+        }
         //LOGIN
         public async Task<LoginResponse?> LoginUserAsync(string email, string password)
         {
@@ -160,6 +169,10 @@ namespace VoiceChat.Client.Services
         public string GetUserName()
         {
             return _session.UserName ?? "";
+        }
+        public string GetSessionToken()
+        {
+            return _session.Token ?? "";
         }
     }
 }

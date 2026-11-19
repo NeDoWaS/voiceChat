@@ -6,8 +6,10 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 builder.Services.AddSignalR();
+builder.Services.AddScoped<LanguageService>();
 builder.Services.AddScoped<ApiService>();
 builder.Services.AddScoped<SessionService>();
+builder.Services.AddScoped<WebRTCService>();
 builder.Services.AddScoped(sp =>
     new HttpClient
     {

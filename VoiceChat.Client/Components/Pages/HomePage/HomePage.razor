@@ -1,247 +1,364 @@
 @page "/homePage"
-@using System.Net.Http.Json
-@using VoiceChat.Client.Models;
-@using static System.Collections.IEnumerable;
-@using VoiceChat.Client.Services;
-@using Microsoft.AspNetCore.Http.HttpResults;
 
-@inject HttpClient Http
+@using VoiceChat.Client.Models
+@using VoiceChat.Client.Services
+
 @inject NavigationManager Navigation
-@rendermode InteractiveServer
+@inject ApiService Api
+@inject LanguageService Language
 
 <PageTitle>VoiceChat</PageTitle>
 
-<div class="home-page">
+<div class="dashboard">
 
-    <div class="header">
-        <div>
-            <h1>VoiceChat</h1>
-            <p>Choose a room to join</p>
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+
+        <div class="brand">
+            <div class="brand-icon">V</div>
+            <span>VoiceChat</span>
         </div>
 
-        <button class="refresh-button" @onclick="LoadRooms">
-            Refresh
-        </button>
-    </div>
+        <nav class="navigation">
+            <span class="nav-label">@T("Dashboard")</span>
 
-    @if (loading)
-    {
-        <div class="status">
-            Loading rooms...
+            <a class="nav-item active" href="/homePage">
+                <span>▦</span>
+                @T("Rooms")
+            </a>
+
+            <a class="nav-item" href="/profile">
+                <span>⚙</span>
+                @T("Settings")
+            </a>
+        </nav>
+
+        <div class="sidebar-bottom">
+            <a class="nav-item" href="/profile">
+                <span>👤</span>
+                @T("Profile")
+            </a>
         </div>
-    }
-    else if (!string.IsNullOrEmpty(error))
-    {
-        <div class="status error">
-            @error
-        </div>
-    }
-    else if (rooms.Count == 0)
-    {
-        <div class="status">
-            No rooms available.
-        </div>
-    }
-    else
-    {
-        <div class="rooms-grid">
-            @foreach (var room in rooms)
-            {
-                <button class="room-card" @onclick="() => NavigateToRoomComponent(room.Id)">
-                    <div class="room-icon">
-                        🎧
-                    </div>
 
-                    <div class="room-info">
-                        <h2>@room.Name</h2>
+    </aside>
 
-                        @if (!string.IsNullOrWhiteSpace(room.Description))
-                        {
-                            <p>@room.Description</p>
-                        }
-                        else
-                        {
-                            <p>No description</p>
-                        }
-                    </div>
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
 
-                    <div class="arrow">
-                        →
-                    </div>
+        <header class="topbar">
+            <div>
+                <span class="breadcrumb">VoiceChat / @T("Dashboard")</span>
+            </div>
+            <!-- CREATE ROOM MODAL -->
+            <button class="create-room-btn" @onclick="OpenCreateRoomModal">
+                <span>＋</span> @T("CreateRoom")
+            </button>
+            <div class="topbar-actions">
+
+                <select class="language-select" value="@Language.CurrentLanguage" @onchange="ChangeLanguage">
+
+                    <option value="en">🇬🇧 English</option>
+                    <option value="uz">🇺🇿 O'zbekcha</option>
+                    <option value="ru">🇷🇺 Русский</option>
+
+                </select>
+
+                <a href="/profile" class="profile-button">
+                    👤
+                </a>
+
+            </div>
+        </header>
+
+        <section class="welcome-section">
+
+            <div>
+                <span class="eyebrow">VOICECHAT</span>
+
+                <h1>@T("Welcome")</h1>
+
+                <p>@T("Subtitle")</p>
+            </div>
+
+
+        </section>
+
+        <section class="rooms-section">
+
+            <div class="section-header">
+
+                <div>
+                    <h2>@T("YourRooms")</h2>
+                    <p>@rooms.Count rooms available</p>
+                </div>
+
+                <button class="refresh-button" @onclick="LoadRooms" disabled="@loading">
+                    ↻ @T("Refresh")
                 </button>
+
+            </div>
+
+            @if (loading)
+            {
+                <div class="empty-state">
+                    <div class="loader"></div>
+                    <p>@T("Loading")</p>
+                </div>
             }
+            else if (!string.IsNullOrEmpty(error))
+            {
+                <div class="error-state">
+                    @error
+                </div>
+            }
+            else if (rooms.Count == 0)
+            {
+                <div class="empty-state">
+
+                    <div class="empty-icon">🎧</div>
+
+                    <h3>@T("NoRooms")</h3>
+
+                    <p>@T("NoRoomsDescription")</p>
+
+                    <button class="create-button" @onclick="OpenCreateModal">
+                        ＋ @T("CreateRoom")
+                    </button>
+
+                </div>
+            }
+            else
+            {
+                <div class="rooms-grid">
+
+                    @foreach (var room in rooms)
+                    {
+                        <article class="room-card" @key="room.Id">
+
+                            <div class="room-card-top">
+                                <div class="room-icon">🎧</div>
+                                <span class="room-status">● @T("RoomStatus")</span>
+                            </div>
+
+                            <h3>@room.Name</h3>
+
+                            <p class="room-description">
+                                @(string.IsNullOrWhiteSpace(room.Description)
+                                    ? "No description"
+                                    : room.Description)
+                            </p>
+
+                            <button class="join-button" @onclick="() => NavigateToRoom(room.Id)">
+                                @T("Join") →
+                            </button>
+
+                        </article>
+                    }
+
+                </div>
+            }
+
+        </section>
+
+    </main>
+
+ 
+
+    @if (showCreateRoomModal)
+    {
+        <div class="modal-overlay" @onclick="CloseCreateRoomModal">
+
+            <div class="room-modal" @onclick:stopPropagation="true">
+
+                <div class="modal-header">
+                    <h2>Create a Room</h2>
+
+                    <button class="close-btn" @onclick="CloseCreateRoomModal">
+                        &times;
+                    </button>
+                </div>
+
+                <div class="modal-body">
+
+                    <label>Room Name</label>
+                    <input type="text" @bind="newRoomName" placeholder="Enter room name" />
+
+                    <label>Description</label>
+                    <textarea @bind="newRoomDescription" placeholder="Describe your room"></textarea>
+
+                    @if (!string.IsNullOrEmpty(error))
+                    {
+                        <p class="error-message">@error</p>
+                    }
+
+                </div>
+
+                <div class="modal-footer">
+
+                    <button class="cancel-btn" @onclick="CloseCreateRoomModal">
+                        Cancel
+                    </button>
+
+                    <button class="submit-btn" @onclick="CreateRoom" disabled="@creating">
+                        @(creating ? "Creating..." : "Create Room")
+                    </button>
+
+                </div>
+
+            </div>
         </div>
     }
+
 </div>
+
 @code {
-    //public VoiceChat.Client.Services.ApiService ApiService { get; set; } = default!;
+
+    private bool showCreateRoomModal = false;
+
+    private string newRoomName = "";
+    private string newRoomDescription = "";
+
+    private void OpenCreateRoomModal()
+    {
+        showCreateRoomModal = true;
+    }
+
+    private void CloseCreateRoomModal()
+    {
+        showCreateRoomModal = false;
+    }
+
+    private List<Room> rooms = new();
+
     private bool loading = true;
-    //private int roomId = 0;
-    //private string roomName { get; set; } = string.Empty;
+    private bool showCreateModal;
+    private bool creating;
+
     private string? error;
+    private string? createError;
 
-    public List<Models.Room> rooms = new List<Models.Room>();
-
-    // Логика создания комнаты
-    private readonly ApiService _api;
-    public HomePage(ApiService api) => _api = api;
+    private string T(string key) => Language.Get(key);
 
     protected override async Task OnInitializedAsync()
     {
-        if (await _api.ValidateSessionAsync() == false)
+        Language.OnLanguageChanged += OnLanguageChanged;
+
+        if (!await Api.ValidateSessionAsync())
         {
-            Console.WriteLine("The sessionValidate sent you back...");
             Navigation.NavigateTo("/login");
             return;
         }
+
         await LoadRooms();
     }
 
-
-    private void CreateRoom(string roomName, int ownerId, string description = "")
+    private void OnLanguageChanged()
     {
-        if (!string.IsNullOrWhiteSpace(roomName))
-        {
-            rooms.Add(new Models.Room(roomName, 0, ""));
-            _api.CreateRoomAsync(roomName, 0, "").Wait();
-            Console.WriteLine($"Room {roomName} was created! ");
+        _ = InvokeAsync(StateHasChanged);
+    }
 
-            roomName = string.Empty;
-            StateHasChanged();
+    private void ChangeLanguage(ChangeEventArgs e)
+    {
+        if (e.Value is string language)
+        {
+            Language.SetLanguage(language);
+        }
+    }
+
+    private async Task LoadRooms()
+    {
+        loading = true;
+        error = null;
+
+        try
+        {
+            rooms = await Api.GetRoomsAsync();
+        }
+        catch (Exception ex)
+        {
+            error = ex.Message;
+        }
+        finally
+        {
+            loading = false;
+        }
+    }
+
+    private void OpenCreateModal()
+    {
+        newRoomName = "";
+        newRoomDescription = "";
+        createError = null;
+        showCreateModal = true;
+    }
+
+    private void CloseCreateModal()
+    {
+        showCreateModal = false;
+    }
+
+    private async Task CreateRoom()
+    {
+        if (string.IsNullOrWhiteSpace(newRoomName))
+        {
+            error = "Room name is required.";
+            return;
         }
 
+        try
+        {
+            creating = true;
+            error = "";
+
+            // Get the logged-in user's ID.
+            string? token = Api.GetSessionToken();
+
+            if (string.IsNullOrEmpty(token))
+            {
+                error = "Your session has expired. Please log in again.";
+                return;
+            }
+
+            var currentUser = await Api.GetCurrentUserAsync(token);
+
+            if (currentUser == null)
+            {
+                error = "Could not identify the current user.";
+                return;
+            }
+
+            // Send the request to the backend.
+            await Api.CreateRoomAsync(
+                newRoomName.Trim(),
+                currentUser.Id,
+                newRoomDescription.Trim()
+            );
+
+            // Refresh the room list.
+            await LoadRooms();
+
+            // Reset and close the modal.
+            newRoomName = "";
+            newRoomDescription = "";
+            showCreateRoomModal = false;
+        }
+        catch (Exception ex)
+        {
+            error = $"Room creation failed: {ex.Message}";
+        }
+        finally
+        {
+            creating = false;
+        }
     }
-    private async Task NavigateToRoomComponent(int roomId)
+
+    private void NavigateToRoom(int roomId)
     {
         Navigation.NavigateTo($"/room/{roomId}");
-        Console.WriteLine($"Navigating to room {roomId}...");
     }
-    private async Task<List<Models.Room>> LoadRooms()
-    {
-        rooms = await _api.GetRoomsAsync();
-        loading = false;
-        StateHasChanged();
 
-        return rooms;
+    public void Dispose()
+    {
+        Language.OnLanguageChanged -= OnLanguageChanged;
     }
 }
-
-<style>
-    .voice-chat-container {
-        max-width: 500px;
-        margin: 2rem auto;
-        padding: 1.5rem;
-        background-color: #f8f9fa;
-        border-radius: 8px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    }
-
-    h1 {
-        font-size: 2rem;
-        color: #212529;
-        margin-bottom: 1.5rem;
-        font-weight: 700;
-    }
-
-    .action-section {
-        margin-bottom: 2rem;
-    }
-
-    .btn-primary {
-        background-color: #0d6efd;
-        color: white;
-        border: none;
-        padding: 0.6rem 1.2rem;
-        font-size: 1rem;
-        border-radius: 4px;
-        cursor: pointer;
-        transition: background-color 0.2s ease;
-    }
-
-    .btn-primary:hover {
-        background-color: #0b5ed7;
-    }
-
-    .rooms-section h2 {
-        font-size: 1.4rem;
-        color: #495057;
-        margin-bottom: 0.5rem;
-    }
-
-    .room-card {
-        padding: 100;
-        border: 5;
-        border-color: black;
-    }
-
-
-    .rooms-divider {
-        border: 0;
-        border-top: 2px solid #dee2e6;
-        margin-top: 0;
-        margin-bottom: 1rem;
-    }
-
-    .rooms-list {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-    }
-
-    .room-item {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 0.75rem 1rem;
-        background-color: white;
-        border: 1px solid #e9ecef;
-        border-radius: 6px;
-        margin-bottom: 0.5rem;
-        cursor: pointer;
-        transition: all 0.2s ease;
-    }
-
-    .room-item:hover {
-        background-color: #e9ecef;
-        border-color: #ced4da;
-    }
-
-    .room-info {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    .room-icon {
-        font-size: 1.1rem;
-    }
-
-    .room-name {
-        font-weight: 500;
-        color: #212529;
-    }
-
-    .btn-sm {
-        padding: 0.25rem 0.5rem;
-        font-size: 0.875rem;
-        border-radius: 4px;
-    }
-
-    .btn-outline-secondary {
-        background-color: transparent;
-        color: #6c757d;
-        border: 1px solid #6c757d;
-        cursor: pointer;
-    }
-
-    .room-item:hover .btn-outline-secondary {
-        background-color: #6c757d;
-        color: white;
-    }
-
-    .empty-message {
-        color: #6c757d;
-        font-style: italic;
-    }
-</style>
